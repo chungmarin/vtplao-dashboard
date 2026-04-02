@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Doanh Thu Q1/2026 — VTP Lào</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:#f0f4f8;color:#1e293b;min-height:100vh}
+.page{max-width:1200px;margin:0 auto;padding:24px}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);border-radius:16px;padding:28px 36px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.header-left h1{font-size:1.6rem;font-weight:800;color:#fff;margin-bottom:4px}
+.header-left p{font-size:0.82rem;color:#94a3b8}
+.header-badge{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:10px 20px;text-align:center}
+.header-badge .val{font-size:1.8rem;font-weight:800;color:#34d399}
+.header-badge .lbl{font-size:0.72rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:24px}
+.kpi{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06);border-top:4px solid}
+.kpi-label{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;margin-bottom:8px}
+.kpi-val{font-size:1.9rem;font-weight:800;line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:0.75rem;color:#94a3b8}
+.kpi-sub b{font-weight:600}
+.up{color:#059669}.dn{color:#dc2626}.warn{color:#d97706}.blue{color:#1d4ed8}
+
+/* GRID LAYOUTS */
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:20px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:20px}
+.grid-1-2{display:grid;grid-template-columns:1fr 2fr;gap:16px;margin-bottom:20px}
+
+/* CARD */
+.card{background:#fff;border-radius:14px;padding:22px 24px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.card-title{font-size:0.88rem;font-weight:700;color:#374151;margin-bottom:16px;display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.04em}
+.card-title span{font-size:1rem}
+
+/* CHART */
+.chart-wrap{position:relative}
+.h280{height:280px}
+.h240{height:240px}
+.h200{height:200px}
+.h320{height:320px}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:0.83rem}
+thead th{background:#f8fafc;padding:9px 12px;text-align:left;font-weight:700;font-size:0.72rem;text-transform:uppercase;letter-spacing:.04em;color:#64748b;border-bottom:2px solid #e2e8f0}
+tbody td{padding:9px 12px;border-bottom:1px solid #f1f5f9;color:#374151}
+tbody tr:last-child td{border-bottom:none;font-weight:700;background:#f8fafc}
+tbody tr:hover td{background:#f0f9ff}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:0.72rem;font-weight:700}
+.badge-green{background:#dcfce7;color:#166534}
+.badge-red{background:#fee2e2;color:#991b1b}
+.badge-yellow{background:#fef9c3;color:#854d0e}
+
+/* PROGRESS */
+.prog-bg{background:#e2e8f0;border-radius:999px;height:7px;flex:1}
+.prog-fill{border-radius:999px;height:7px;transition:width .5s ease}
+
+/* INSIGHT BOX */
+.insight{border-radius:10px;padding:12px 16px;font-size:0.82rem;line-height:1.65;margin-top:12px}
+.insight-blue{background:#eff6ff;border-left:3px solid #3b82f6;color:#1e40af}
+.insight-green{background:#f0fdf4;border-left:3px solid #22c55e;color:#166534}
+.insight-red{background:#fff1f2;border-left:3px solid #f43f5e;color:#9f1239}
+.insight-amber{background:#fffbeb;border-left:3px solid #f59e0b;color:#92400e}
+
+/* MONTH INDICATOR */
+.month-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.month-card{border-radius:12px;padding:16px 18px;text-align:center}
+.mc-t1{background:linear-gradient(135deg,#dbeafe,#bfdbfe);border:1px solid #93c5fd}
+.mc-t2{background:linear-gradient(135deg,#d1fae5,#a7f3d0);border:1px solid #6ee7b7}
+.mc-t3{background:linear-gradient(135deg,#ede9fe,#ddd6fe);border:1px solid #c4b5fd}
+.mc-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.7;margin-bottom:6px}
+.mc-val{font-size:1.5rem;font-weight:800;margin-bottom:2px}
+.mc-kh{font-size:0.72rem;opacity:.7}
+.mc-pct{font-size:0.78rem;font-weight:700;margin-top:4px}
+
+/* FOOTER */
+.footer{text-align:center;font-size:0.72rem;color:#94a3b8;margin-top:28px;padding-top:16px;border-top:1px solid #e2e8f0}
+
+@media(max-width:768px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .grid2,.grid3,.grid-1-2{grid-template-columns:1fr}
+  .month-cards{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <h1>📊 Dashboard Doanh Thu Q1/2026</h1>
+      <p>Công ty TNHH MTV ViettelPost Laos &nbsp;·&nbsp; Tháng 1 + 2 + 3 năm 2026 &nbsp;·&nbsp; Đơn vị: Triệu VNĐ</p>
+    </div>
+    <div class="header-badge">
+      <div class="val">+501%</div>
+      <div class="lbl">Tăng trưởng vs Q1/2025</div>
+    </div>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-grid">
+    <div class="kpi" style="border-color:#3b82f6">
+      <div class="kpi-label">📦 Tổng TH Q1/2026</div>
+      <div class="kpi-val blue">36,432</div>
+      <div class="kpi-sub">Triệu VNĐ · KH: <b>35,843.5</b></div>
+    </div>
+    <div class="kpi" style="border-color:#22c55e">
+      <div class="kpi-label">✅ Tỷ lệ hoàn thành KH</div>
+      <div class="kpi-val up">101.6%</div>
+      <div class="kpi-sub">Vượt kế hoạch <b>+588.5</b> tr.VNĐ</div>
+    </div>
+    <div class="kpi" style="border-color:#f59e0b">
+      <div class="kpi-label">📈 So sánh Q1/2025</div>
+      <div class="kpi-val warn">+30,368</div>
+      <div class="kpi-sub">Q1/2025: <b>6,064</b> tr. → 2026: <b>36,432</b> tr.</div>
+    </div>
+    <div class="kpi" style="border-color:#a855f7">
+      <div class="kpi-label">🚀 Tốc độ tăng trưởng</div>
+      <div class="kpi-val" style="color:#7c3aed">x6.01</div>
+      <div class="kpi-sub">Gấp 6 lần so với cùng kỳ 2025</div>
+    </div>
+  </div>
+
+  <!-- MONTH SUMMARY CARDS -->
+  <div class="month-cards">
+    <div class="month-card mc-t1">
+      <div class="mc-label" style="color:#1e40af">Tháng 1/2026</div>
+      <div class="mc-val" style="color:#1e40af">12,042</div>
+      <div class="mc-kh" style="color:#1e40af">KH: 11,680 · Đạt: 103.1%</div>
+      <div class="mc-pct" style="color:#1e40af">▲ vs 2025: +3,178% (TH 2025: 368 tr.)</div>
+    </div>
+    <div class="month-card mc-t2">
+      <div class="mc-label" style="color:#065f46">Tháng 2/2026</div>
+      <div class="mc-val" style="color:#065f46">12,102</div>
+      <div class="mc-kh" style="color:#065f46">KH: 11,926.5 · Đạt: 101.5%</div>
+      <div class="mc-pct" style="color:#065f46">▲ vs 2025: +369% (TH 2025: 2,579 tr.)</div>
+    </div>
+    <div class="month-card mc-t3">
+      <div class="mc-label" style="color:#4c1d95">Tháng 3/2026</div>
+      <div class="mc-val" style="color:#4c1d95">12,288</div>
+      <div class="mc-kh" style="color:#4c1d95">KH: 12,237 · Đạt: 100.4%</div>
+      <div class="mc-pct" style="color:#4c1d95">▲ vs 2025: +294% (TH 2025: 3,117 tr.)</div>
+    </div>
+  </div>
+
+  <!-- CHART ROW 1: KH vs TH theo tháng + So sánh 2025 vs 2026 -->
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title"><span>📅</span> KH vs TH Từng Tháng Q1/2026</div>
+      <div class="chart-wrap h280"><canvas id="c-khth"></canvas></div>
+      <div class="insight insight-green">Ba tháng liên tiếp đều <b>vượt kế hoạch</b>: T1 +3.1%, T2 +1.5%, T3 +0.4%. Xu hướng ổn định và tích cực.</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>📊</span> So Sánh Doanh Thu Q1/2025 vs Q1/2026</div>
+      <div class="chart-wrap h280"><canvas id="c-yoy"></canvas></div>
+      <div class="insight insight-blue">Q1/2026 đạt <b>36,432 tr.VNĐ</b>, tăng <b>+30,368 tr.</b> so với Q1/2025 (6,064 tr.) — tương đương tăng trưởng <b>+501%</b>.</div>
+    </div>
+  </div>
+
+  <!-- CHART ROW 2: Cơ cấu dịch vụ + Hoàn thành theo dịch vụ -->
+  <div class="grid-1-2">
+    <div class="card">
+      <div class="card-title"><span>🍩</span> Cơ Cấu Doanh Thu Q1/2026</div>
+      <div class="chart-wrap h240"><canvas id="c-donut"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>📋</span> Chi Tiết KH vs TH Theo Dịch Vụ & Tháng</div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Dịch vụ</th>
+              <th style="text-align:right">KH T1</th><th style="text-align:right">TH T1</th><th style="text-align:center">% T1</th>
+              <th style="text-align:right">KH T2</th><th style="text-align:right">TH T2</th><th style="text-align:center">% T2</th>
+              <th style="text-align:right">KH T3</th><th style="text-align:right">TH T3</th><th style="text-align:center">% T3</th>
+            </tr>
+          </thead>
+          <tbody id="tb-service"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHART ROW 3: Tăng trưởng theo từng dịch vụ + Radar so sánh -->
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title"><span>🏆</span> Tổng TH Q1/2026 Theo Từng Dịch Vụ</div>
+      <div class="chart-wrap h280"><canvas id="c-service-total"></canvas></div>
+      <div class="insight insight-amber"><b>Vận tải XBG</b> chiếm tỷ trọng lớn nhất (55.6%). <b>Chuyển phát</b> tăng mạnh nhất về % so với KH (+27.99% tháng 3).</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>📈</span> % Hoàn Thành KH Theo Dịch Vụ Từng Tháng</div>
+      <div class="chart-wrap h280"><canvas id="c-pct"></canvas></div>
+      <div class="insight insight-green"><b>Dịch vụ Thương mại</b> và <b>Chuyển phát</b> vượt KH cả 3 tháng. <b>Vận tải XBG</b> tháng 3 hụt KH (-11.4%) cần theo dõi.</div>
+    </div>
+  </div>
+
+  <!-- GROWTH ANALYSIS TABLE -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title"><span>🔍</span> Phân Tích Tăng Trưởng Q1/2025 → Q1/2026 (Triệu VNĐ)</div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Kỳ</th>
+            <th style="text-align:right">TH Q1/2025</th>
+            <th style="text-align:right">TH Q1/2026</th>
+            <th style="text-align:right">Tăng tuyệt đối</th>
+            <th style="text-align:right">Tăng trưởng (%)</th>
+            <th style="min-width:160px">Thanh tiến độ</th>
+          </tr>
+        </thead>
+        <tbody id="tb-growth"></tbody>
+      </table>
+    </div>
+    <div class="insight insight-red" style="margin-top:14px">⚠️ <b>Lưu ý:</b> Tháng 1/2025 chỉ đạt 368 tr.VNĐ do mới triển khai. Tốc độ tăng trưởng tuyệt đối Tháng 1/2026 (+31.7x) phản ánh nền thấp của năm trước, không hoàn toàn phản ánh hiệu suất thực tế.</div>
+  </div>
+
+  <!-- INSIGHT SUMMARY -->
+  <div class="grid3">
+    <div class="card" style="border-top:3px solid #22c55e">
+      <div class="card-title" style="color:#166534"><span>✅</span> Điểm Tích Cực</div>
+      <ul style="font-size:0.83rem;color:#374151;line-height:2;padding-left:16px">
+        <li>Vượt KH cả 3 tháng liên tiếp</li>
+        <li>Tổng Q1 vượt KH +1.6% (+588 tr.VNĐ)</li>
+        <li>Chuyển phát tăng mạnh vs KH (+28%)</li>
+        <li>Vận tải nội địa đạt đúng 100% KH</li>
+        <li>Thương mại Fulfillment vượt KH cả quý</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top:3px solid #f59e0b">
+      <div class="card-title" style="color:#92400e"><span>⚠️</span> Điểm Cần Chú Ý</div>
+      <ul style="font-size:0.83rem;color:#374151;line-height:2;padding-left:16px">
+        <li>Vận tải XBG tháng 3 hụt KH 11.4%</li>
+        <li>Dịch vụ kho chưa đạt KH cả 3 tháng</li>
+        <li>Dịch vụ kho đạt ~73–79% KH liên tục</li>
+        <li>Kho chưa có dữ liệu Q1/2025 để so sánh</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top:3px solid #3b82f6">
+      <div class="card-title" style="color:#1e40af"><span>🎯</span> Tổng Kết</div>
+      <div style="font-size:0.83rem;color:#374151;line-height:1.8">
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f1f5f9"><span>KH Q1/2026</span><b>35,843.5 tr.</b></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f1f5f9"><span>TH Q1/2026</span><b style="color:#059669">36,432 tr.</b></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f1f5f9"><span>Chênh lệch</span><b style="color:#059669">+588.5 tr.</b></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f1f5f9"><span>% Hoàn thành</span><b style="color:#059669">101.6%</b></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0"><span>vs Q1/2025</span><b style="color:#7c3aed">+501%</b></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">VTP Lào · Dashboard Q1/2026 · Dữ liệu: Báo cáo doanh thu T1, T2, T3/2026 · Đơn vị: Triệu VNĐ</div>
+</div>
+
+<script>
+const COLORS = {
+  blue:'#3b82f6', green:'#22c55e', purple:'#a855f7', amber:'#f59e0b',
+  red:'#ef4444', teal:'#14b8a6', indigo:'#6366f1', rose:'#f43f5e',
+  sky:'#0ea5e9', lime:'#84cc16'
+};
+
+const months = ['Tháng 1','Tháng 2','Tháng 3'];
+const kh = [11680, 11926.5, 12237];
+const th = [12042, 12102, 12288];
+
+const services = ['Dịch vụ kho','Vận tải nội địa','Vận tải XBG','TM Fulfillment','Chuyển phát'];
+const sColors = [COLORS.teal, COLORS.blue, COLORS.indigo, COLORS.amber, COLORS.purple];
+
+// KH vs TH chart
+new Chart(document.getElementById('c-khth'),{
+  type:'bar',
+  data:{labels:months,datasets:[
+    {label:'Kế hoạch',data:kh,backgroundColor:'rgba(59,130,246,0.3)',borderColor:COLORS.blue,borderWidth:2,borderRadius:6,borderSkipped:false},
+    {label:'Thực hiện',data:th,backgroundColor:[COLORS.green,COLORS.green,COLORS.green].map(c=>c+'cc'),borderColor:COLORS.green,borderWidth:2,borderRadius:6,borderSkipped:false}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:12,font:{size:11}}},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.raw.toLocaleString('vi-VN')} tr.VNĐ`}}},scales:{x:{grid:{display:false}},y:{grid:{color:'#f1f5f9'},ticks:{callback:v=>v.toLocaleString('vi-VN')}}}}
+});
+
+// YoY chart
+new Chart(document.getElementById('c-yoy'),{
+  type:'bar',
+  data:{labels:['Tháng 1','Tháng 2','Tháng 3','Tổng Q1'],datasets:[
+    {label:'Q1/2025',data:[368,2579,3117,6064],backgroundColor:'rgba(148,163,184,0.5)',borderColor:'#94a3b8',borderWidth:2,borderRadius:6,borderSkipped:false},
+    {label:'Q1/2026',data:[12042,12102,12288,36432],backgroundColor:'rgba(99,102,241,0.7)',borderColor:COLORS.indigo,borderWidth:2,borderRadius:6,borderSkipped:false}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:12,font:{size:11}}},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.raw.toLocaleString('vi-VN')} tr.VNĐ`}}},scales:{x:{grid:{display:false}},y:{grid:{color:'#f1f5f9'},ticks:{callback:v=>v.toLocaleString('vi-VN')}}}}
+});
+
+// Donut chart
+const totals = [1086, 2400, 20260, 1106, 11580];
+new Chart(document.getElementById('c-donut'),{
+  type:'doughnut',
+  data:{labels:services,datasets:[{data:totals,backgroundColor:sColors.map(c=>c+'cc'),borderWidth:3,hoverOffset:8}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom',labels:{boxWidth:11,font:{size:10},padding:8}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw.toLocaleString('vi-VN')} tr. (${(ctx.raw/36432*100).toFixed(1)}%)`}}}}
+});
+
+// Service total bar
+new Chart(document.getElementById('c-service-total'),{
+  type:'bar',
+  data:{labels:services,datasets:[{label:'Tổng TH Q1/2026',data:totals,backgroundColor:sColors.map(c=>c+'bb'),borderColor:sColors,borderWidth:2,borderRadius:8,borderSkipped:false}]},
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw.toLocaleString('vi-VN')} tr.VNĐ (${(ctx.raw/36432*100).toFixed(1)}%)`}}},scales:{x:{grid:{color:'#f1f5f9'},ticks:{callback:v=>v.toLocaleString('vi-VN')}},y:{grid:{display:false}}}}
+});
+
+// % completion per service per month
+const pctData = {
+  'Dịch vụ kho':[78.7,76.2,73.1],
+  'Vận tải nội địa':[100,100,100],
+  'Vận tải XBG':[100,100,88.6],
+  'TM Fulfillment':[120,103,100],
+  'Chuyển phát':[112.9,108.4,128.0]
+};
+new Chart(document.getElementById('c-pct'),{
+  type:'line',
+  data:{labels:months,datasets:services.map((s,i)=>({label:s,data:pctData[s],borderColor:sColors[i],backgroundColor:sColors[i]+'22',borderWidth:2.5,pointRadius:5,pointBackgroundColor:sColors[i],fill:false,tension:.3}))},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10},padding:8}},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%`}}},scales:{x:{grid:{display:false}},y:{grid:{color:'#f1f5f9'},ticks:{callback:v=>v+'%'},min:60,max:135}}}
+});
+
+// SERVICE TABLE
+const svcData=[
+  {name:'Dịch vụ kho',kh:[460,475,495],th:[362,362,362]},
+  {name:'Vận tải nội địa',kh:[800,800,800],th:[800,800,800]},
+  {name:'Vận tải XBG',kh:[7020,7020,7020],th:[7020,7020,6220]},
+  {name:'TM Fulfillment',kh:[300,330,406],th:[360,340,406]},
+  {name:'Chuyển phát',kh:[3100,3301.5,3516],th:[3500,3580,4500]},
+  {name:'TỔNG',kh:[11680,11926.5,12237],th:[12042,12102,12288]}
+];
+const tbody=document.getElementById('tb-service');
+svcData.forEach((s,idx)=>{
+  const isLast=idx===svcData.length-1;
+  const pcts=s.kh.map((k,i)=>s.th[i]/k*100);
+  const badge=p=>`<span class="badge ${p>=100?'badge-green':p>=85?'badge-yellow':'badge-red'}">${p.toFixed(1)}%</span>`;
+  tbody.innerHTML+=`<tr ${isLast?'style="font-weight:700;background:#f8fafc"':''}>
+    <td>${s.name}</td>
+    <td style="text-align:right">${s.kh[0].toLocaleString('vi-VN')}</td>
+    <td style="text-align:right">${s.th[0].toLocaleString('vi-VN')}</td>
+    <td style="text-align:center">${badge(pcts[0])}</td>
+    <td style="text-align:right">${s.kh[1].toLocaleString('vi-VN')}</td>
+    <td style="text-align:right">${s.th[1].toLocaleString('vi-VN')}</td>
+    <td style="text-align:center">${badge(pcts[1])}</td>
+    <td style="text-align:right">${s.kh[2].toLocaleString('vi-VN')}</td>
+    <td style="text-align:right">${s.th[2].toLocaleString('vi-VN')}</td>
+    <td style="text-align:center">${badge(pcts[2])}</td>
+  </tr>`;
+});
+
+// GROWTH TABLE
+const growthData=[
+  {ky:'Tháng 1',th25:368,th26:12042},
+  {ky:'Tháng 2',th25:2579,th26:12102},
+  {ky:'Tháng 3',th25:3117,th26:12288},
+  {ky:'Tổng Q1',th25:6064,th26:36432}
+];
+const maxAbs=30368;
+const tbg=document.getElementById('tb-growth');
+growthData.forEach(r=>{
+  const abs=r.th26-r.th25;
+  const pct=r.th25>0?((r.th26-r.th25)/r.th25*100).toFixed(1):'N/A';
+  const barW=(abs/maxAbs*100).toFixed(0);
+  tbg.innerHTML+=`<tr>
+    <td style="font-weight:600">${r.ky}</td>
+    <td style="text-align:right">${r.th25.toLocaleString('vi-VN')}</td>
+    <td style="text-align:right;font-weight:700;color:#1d4ed8">${r.th26.toLocaleString('vi-VN')}</td>
+    <td style="text-align:right;color:#059669;font-weight:700">+${abs.toLocaleString('vi-VN')}</td>
+    <td style="text-align:right"><span class="badge badge-green">+${pct}%</span></td>
+    <td><div style="display:flex;align-items:center;gap:8px"><div class="prog-bg"><div class="prog-fill" style="width:${barW}%;background:#6366f1"></div></div><span style="font-size:11px;color:#64748b;min-width:32px">${barW}%</span></div></td>
+  </tr>`;
+});
+</script>
+</body>
+</html>
