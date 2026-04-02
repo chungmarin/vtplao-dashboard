@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phân Tích Doanh Thu - Q4/2025 vs Q1/2026</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; }
+    .card { background: white; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .kpi-value { font-size: 1.7rem; font-weight: 800; }
+    .kpi-up { color: #059669; }
+    .kpi-down { color: #dc2626; }
+    .kpi-blue { color: #1a56db; }
+    .kpi-orange { color: #d97706; }
+    .chart-container { position: relative; height: 300px; }
+    .chart-container-tall { position: relative; height: 360px; }
+    .section-title { font-size: 1.15rem; font-weight: 700; color: #1e293b; border-left: 4px solid #1a56db; padding-left: 10px; margin-bottom: 16px; }
+    .badge-q4 { background: #dbeafe; color: #1d4ed8; padding: 2px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+    .badge-q1 { background: #d1fae5; color: #065f46; padding: 2px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+    .growth-badge { background: #fef3c7; color: #92400e; padding: 3px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; }
+    .growth-badge.positive { background: #d1fae5; color: #065f46; }
+    .insight-box { border-left: 3px solid #f59e0b; background: #fffbeb; padding: 12px 16px; border-radius: 8px; }
+    .insight-box.blue { border-left-color: #3b82f6; background: #eff6ff; }
+    .insight-box.red { border-left-color: #ef4444; background: #fef2f2; }
+    .insight-box.green { border-left-color: #10b981; background: #ecfdf5; }
+    .tab-btn { padding: 8px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
+    .tab-btn.active { background: #1a56db; color: white; }
+    .tab-btn:not(.active) { background: #e2e8f0; color: #475569; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th { background: #1e3a5f; color: white; padding: 10px 12px; text-align: left; font-weight: 600; }
+    td { padding: 9px 12px; border-bottom: 1px solid #e5e7eb; }
+    tr:hover td { background: #f0f4ff; }
+    .arrow-up::before { content: '▲ '; }
+    .arrow-down::before { content: '▼ '; }
+    .metric-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+    .metric-row:last-child { border-bottom: none; }
+  </style>
+</head>
+<body class="p-4">
+
+  <!-- Header -->
+  <div class="card p-6 mb-5" style="background: linear-gradient(135deg, #1e3a5f 0%, #1a56db 100%); color: white;">
+    <div class="flex justify-between items-start">
+      <div>
+        <h1 class="text-3xl font-bold mb-1">📦 Báo Cáo Phân Tích Doanh Thu</h1>
+        <p style="color:#bfdbfe;">Received Orders Report | Đơn vị tiền tệ: LAK (Kíp Lào)</p>
+        <div class="flex gap-3 mt-3">
+          <span class="badge-q4" style="background:rgba(255,255,255,0.2);color:white;">Q4/2025: T10–T12/2025</span>
+          <span class="badge-q1" style="background:rgba(255,255,255,0.2);color:white;">Q1/2026: T1–T3/2026</span>
+        </div>
+      </div>
+      <div style="text-align:right; color:#bfdbfe; font-size:0.85rem;">
+        <div>Tổng số tháng: 6</div>
+        <div>Tổng bill: 253,083</div>
+        <div>Ngày phân tích: 02/04/2026</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== SECTION 1: KPI TỔNG QUÁT ======================== -->
+  <div class="section-title mb-4">📊 1. TỔNG QUAN DOANH THU HAI QUÝ</div>
+
+  <div class="grid grid-cols-2 gap-4 mb-4" style="grid-template-columns: repeat(4, 1fr);">
+    <div class="card p-5">
+      <div class="text-xs text-gray-500 mb-1 font-semibold uppercase tracking-wide">Doanh thu Q4/2025</div>
+      <div class="kpi-value kpi-blue">1.97 Tỷ</div>
+      <div class="text-xs text-gray-400 mt-1">1,970,632,114 LAK</div>
+      <div class="text-xs mt-2" style="color:#64748b;">98,942 bills</div>
+    </div>
+    <div class="card p-5">
+      <div class="text-xs text-gray-500 mb-1 font-semibold uppercase tracking-wide">Doanh thu Q1/2026</div>
+      <div class="kpi-value kpi-up">6.51 Tỷ</div>
+      <div class="text-xs text-gray-400 mt-1">6,511,685,503 LAK</div>
+      <div class="text-xs mt-2" style="color:#64748b;">154,141 bills</div>
+    </div>
+    <div class="card p-5" style="border: 2px solid #d1fae5;">
+      <div class="text-xs text-gray-500 mb-1 font-semibold uppercase tracking-wide">Tăng trưởng Doanh thu</div>
+      <div class="kpi-value kpi-up arrow-up">+230.4%</div>
+      <div class="text-xs mt-1" style="color:#059669;">+4,541,053,389 LAK</div>
+      <div class="text-xs mt-2 growth-badge positive">🚀 Tăng trưởng mạnh</div>
+    </div>
+    <div class="card p-5" style="border: 2px solid #dbeafe;">
+      <div class="text-xs text-gray-500 mb-1 font-semibold uppercase tracking-wide">Tăng trưởng Bill</div>
+      <div class="kpi-value kpi-blue arrow-up">+55.8%</div>
+      <div class="text-xs mt-1" style="color:#1d4ed8;">+55,199 bills</div>
+      <div class="text-xs mt-2 growth-badge">📈 Sản lượng tăng tốt</div>
+    </div>
+  </div>
+
+  <!-- Revenue by Month Bar Chart & Quarter Comparison -->
+  <div class="grid grid-cols-2 gap-4 mb-5">
+    <div class="card p-5">
+      <div class="section-title">Doanh thu theo Tháng (LAK)</div>
+      <div class="chart-container">
+        <canvas id="chartMonthRev"></canvas>
+      </div>
+    </div>
+    <div class="card p-5">
+      <div class="section-title">Sản lượng Bill theo Tháng</div>
+      <div class="chart-container">
+        <canvas id="chartMonthBill"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== SECTION 2: PHÂN TÍCH BILL ======================== -->
+  <div class="section-title mb-4">📋 2. PHÂN TÍCH SẢN LƯỢNG BILL</div>
+
+  <div class="grid gap-4 mb-4" style="grid-template-columns: repeat(4, 1fr);">
+    <div class="card p-5">
+      <div class="text-xs text-gray-500 mb-1 font-semibold uppercase">Bill TB/Tháng Q4</div>
+      <div class="kpi-value kpi-orange">32,981</div>
+      <div class="text-xs text-gray-400">bills/tháng</div>
+    </div>
+    <div class="card p-5">
+      <div class="text-xs text-gray-500 mb-1 font-semibold uppercase">Bill TB/Tháng Q1</div>
+      <div class="kpi-value kpi-up">51,380</div>
+      <div class="text-xs text-gray-400">bills/tháng</div>
+    </div>
+    <div class="card p-5">
+      <div class="text-xs text-gray-500 mb-1 font-semibold uppercase">Doanh thu TB/Bill Q4</div>
+      <div class="kpi-value kpi-orange">19,917</div>
+      <div class="text-xs text-gray-400">LAK/bill</div>
+    </div>
+    <div class="card p-5">
+      <div class="text-xs text-gray-500 mb-1 font-semibold uppercase">Doanh thu TB/Bill Q1</div>
+      <div class="kpi-value kpi-up">42,244</div>
+      <div class="text-xs text-gray-400">LAK/bill (+112%)</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 mb-5">
+    <div class="card p-5">
+      <div class="section-title">Doanh thu Trung bình / Bill (LAK)</div>
+      <div class="chart-container">
+        <canvas id="chartAvgBill"></canvas>
+      </div>
+    </div>
+    <div class="card p-5">
+      <div class="section-title">So sánh Bill Q4/2025 vs Q1/2026</div>
+      <div class="chart-container">
+        <canvas id="chartQuarterBill"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== SECTION 3: CÁC CHỈ TIÊU KHÁC ======================== -->
+  <div class="section-title mb-4">🔍 3. PHÂN TÍCH CHỈ TIÊU CHUYÊN SÂU (Tư vấn Quản lý Kế hoạch)</div>
+
+  <!-- 3.1 Payment Terms -->
+  <div class="grid grid-cols-2 gap-4 mb-4">
+    <div class="card p-5">
+      <div class="section-title">Cơ cấu Phương thức Thanh toán</div>
+      <div class="chart-container">
+        <canvas id="chartPayment"></canvas>
+      </div>
+    </div>
+    <div class="card p-5">
+      <div class="section-title">Phân tích Cơ cấu Phí (Q4 vs Q1)</div>
+      <div class="chart-container">
+        <canvas id="chartFeeBreakdown"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3.2 Weight Analysis -->
+  <div class="grid gap-4 mb-4" style="grid-template-columns: repeat(4,1fr);">
+    <div class="card p-5">
+      <div class="text-xs text-gray-500 font-semibold uppercase mb-1">Tổng KG Q4/2025</div>
+      <div class="kpi-value kpi-blue">233,548</div>
+      <div class="text-xs text-gray-400">kg</div>
+    </div>
+    <div class="card p-5">
+      <div class="text-xs text-gray-500 font-semibold uppercase mb-1">Tổng KG Q1/2026</div>
+      <div class="kpi-value kpi-up">1,748,694</div>
+      <div class="text-xs text-gray-400">kg (+649%)</div>
+    </div>
+    <div class="card p-5">
+      <div class="text-xs text-gray-500 font-semibold uppercase mb-1">KG TB/Bill Q4</div>
+      <div class="kpi-value kpi-orange">2.36</div>
+      <div class="text-xs text-gray-400">kg/bill</div>
+    </div>
+    <div class="card p-5">
+      <div class="text-xs text-gray-500 font-semibold uppercase mb-1">KG TB/Bill Q1</div>
+      <div class="kpi-value kpi-up">11.34</div>
+      <div class="text-xs text-gray-400">kg/bill (+381%)</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 mb-4">
+    <div class="card p-5">
+      <div class="section-title">Khối lượng TB/Bill theo Tháng (KG)</div>
+      <div class="chart-container">
+        <canvas id="chartWeight"></canvas>
+      </div>
+    </div>
+    <div class="card p-5">
+      <div class="section-title">Top 10 Chi nhánh Gửi (Origin) - Q1/2026</div>
+      <div class="chart-container">
+        <canvas id="chartOrigin"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3.3 Cargo Types -->
+  <div class="grid grid-cols-2 gap-4 mb-4">
+    <div class="card p-5">
+      <div class="section-title">Cơ cấu Loại Hàng hóa - Q4/2025</div>
+      <div class="chart-container" style="height:220px;">
+        <canvas id="chartCargoQ4"></canvas>
+      </div>
+      <div class="mt-3 text-sm text-gray-600">
+        <div class="metric-row"><span>📦 Hàng hóa</span><span class="font-bold">92,966 bills (94.0%)</span></div>
+        <div class="metric-row"><span>✉️ Thư</span><span class="font-bold">5,976 bills (6.0%)</span></div>
+      </div>
+    </div>
+    <div class="card p-5">
+      <div class="section-title">Cơ cấu Loại Hàng hóa - Q1/2026</div>
+      <div class="chart-container" style="height:220px;">
+        <canvas id="chartCargoQ1"></canvas>
+      </div>
+      <div class="mt-3 text-sm text-gray-600">
+        <div class="metric-row"><span>📦 Hàng hóa</span><span class="font-bold">151,054 bills (98.0%)</span></div>
+        <div class="metric-row"><span>✉️ Thư</span><span class="font-bold">3,087 bills (2.0%)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Discount Analysis -->
+  <div class="grid grid-cols-2 gap-4 mb-5">
+    <div class="card p-5">
+      <div class="section-title">Tỷ lệ Chiết khấu (Discount Rate)</div>
+      <div class="chart-container">
+        <canvas id="chartDiscount"></canvas>
+      </div>
+    </div>
+    <div class="card p-5">
+      <div class="section-title">VAS Fee (Dịch vụ Gia tăng) theo Tháng</div>
+      <div class="chart-container">
+        <canvas id="chartVas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== SECTION 4: BẢNG TỔNG HỢP ======================== -->
+  <div class="section-title mb-3">📑 4. BẢNG TỔNG HỢP CHỈ TIÊU</div>
+  <div class="card p-5 mb-5" style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>Chỉ tiêu</th>
+          <th>T10/2025</th>
+          <th>T11/2025</th>
+          <th>T12/2025</th>
+          <th style="background:#1d4ed8;">Tổng Q4/2025</th>
+          <th>T1/2026</th>
+          <th>T2/2026</th>
+          <th>T3/2026</th>
+          <th style="background:#065f46;">Tổng Q1/2026</th>
+          <th style="background:#7c3aed;">Tăng trưởng</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="font-semibold">Số Bill</td>
+          <td>1,812</td>
+          <td>80,252</td>
+          <td>16,878</td>
+          <td class="font-bold" style="background:#eff6ff;">98,942</td>
+          <td>35,351</td>
+          <td>46,597</td>
+          <td>72,193</td>
+          <td class="font-bold" style="background:#ecfdf5;">154,141</td>
+          <td class="font-bold" style="background:#faf5ff; color:#7c3aed;">+55.8%</td>
+        </tr>
+        <tr>
+          <td class="font-semibold">Doanh thu (Tỷ LAK)</td>
+          <td>0.016</td>
+          <td>1.417</td>
+          <td>0.537</td>
+          <td class="font-bold" style="background:#eff6ff;">1.971</td>
+          <td>1.396</td>
+          <td>1.868</td>
+          <td>3.248</td>
+          <td class="font-bold" style="background:#ecfdf5;">6.512</td>
+          <td class="font-bold" style="background:#faf5ff; color:#7c3aed;">+230.4%</td>
+        </tr>
+        <tr>
+          <td class="font-semibold">DT TB/Bill (LAK)</td>
+          <td>9,097</td>
+          <td>17,662</td>
+          <td>31,799</td>
+          <td class="font-bold" style="background:#eff6ff;">19,917</td>
+          <td>39,480</td>
+          <td>40,085</td>
+          <td>44,993</td>
+          <td class="font-bold" style="background:#ecfdf5;">42,244</td>
+          <td class="font-bold" style="background:#faf5ff; color:#7c3aed;">+112.1%</td>
+        </tr>
+        <tr>
+          <td class="font-semibold">KG TB/Bill</td>
+          <td>2.24</td>
+          <td>1.66</td>
+          <td>5.83</td>
+          <td class="font-bold" style="background:#eff6ff;">2.36</td>
+          <td>9.22</td>
+          <td>11.27</td>
+          <td>12.44</td>
+          <td class="font-bold" style="background:#ecfdf5;">11.34</td>
+          <td class="font-bold" style="background:#faf5ff; color:#7c3aed;">+380.5%</td>
+        </tr>
+        <tr>
+          <td class="font-semibold">Tỷ lệ Chiết khấu</td>
+          <td>33.7%</td>
+          <td>12.6%</td>
+          <td>5.6%</td>
+          <td class="font-bold" style="background:#eff6ff;">10.5%</td>
+          <td>4.6%</td>
+          <td>4.5%</td>
+          <td>4.1%</td>
+          <td class="font-bold" style="background:#ecfdf5;">4.4%</td>
+          <td class="font-bold" style="background:#faf5ff; color:#059669;">↓ Giảm tốt</td>
+        </tr>
+        <tr>
+          <td class="font-semibold">Bill/Ngày (TB)</td>
+          <td>108</td>
+          <td>2,675</td>
+          <td>544</td>
+          <td class="font-bold" style="background:#eff6ff;">1,082</td>
+          <td>1,140</td>
+          <td>1,664</td>
+          <td>2,329</td>
+          <td class="font-bold" style="background:#ecfdf5;">1,700</td>
+          <td class="font-bold" style="background:#faf5ff; color:#7c3aed;">+57.1%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ======================== SECTION 5: NHẬN ĐỊNH & TƯ VẤN ======================== -->
+  <div class="section-title mb-4">💡 5. NHẬN ĐỊNH & TƯ VẤN CHIẾN LƯỢC (Góc nhìn Quản lý Kế hoạch 20+ năm)</div>
+
+  <div class="grid grid-cols-2 gap-4 mb-4">
+    <div>
+      <div class="insight-box green mb-3">
+        <div class="font-bold text-sm mb-1">✅ Điểm mạnh — Q1/2026 vượt trội rõ rệt</div>
+        <ul class="text-sm" style="list-style:disc;padding-left:16px;">
+          <li>Doanh thu tăng <strong>+230%</strong> — tăng trưởng đột phá, vượt kỳ vọng</li>
+          <li>Sản lượng bill tăng <strong>+55.8%</strong> — nền khách hàng mở rộng mạnh</li>
+          <li>Giá trị TB/bill tăng <strong>+112%</strong>: chuyển sang hàng giá trị cao hơn</li>
+          <li>KG/bill tăng gấp 4.8 lần: quy mô kiện hàng lớn hơn đáng kể</li>
+          <li>Tỷ lệ chiết khấu giảm từ 10.5% xuống 4.4%: chính sách giá tốt hơn</li>
+        </ul>
+      </div>
+      <div class="insight-box red mb-3">
+        <div class="font-bold text-sm mb-1">⚠️ Điểm cần lưu ý & rủi ro</div>
+        <ul class="text-sm" style="list-style:disc;padding-left:16px;">
+          <li>T10/2025 quá thấp (1,812 bills) — có thể là tháng đầu triển khai, cần xem lại</li>
+          <li>T11/2025 đột biến 80,252 bills rồi giảm mạnh T12 — tính ổn định cần kiểm tra</li>
+          <li>Phụ thuộc vào VIC branch (chiếm >45% origin Q1) — rủi ro tập trung cao</li>
+          <li>VAS fee không đồng đều — T3/2026 tăng đột biến cần phân tích rõ nguyên nhân</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="insight-box blue mb-3">
+        <div class="font-bold text-sm mb-1">📌 Khuyến nghị Chỉ tiêu bổ sung cần theo dõi</div>
+        <ul class="text-sm" style="list-style:disc;padding-left:16px;">
+          <li><strong>Tỷ lệ hoàn hàng (Return rate)</strong>: Đánh giá chất lượng dịch vụ</li>
+          <li><strong>Thời gian giao hàng TB</strong>: Hiệu quả vận hành logistics</li>
+          <li><strong>Doanh thu theo khách hàng (Customer Pareto)</strong>: Xác định top 20% khách hàng tạo 80% doanh thu</li>
+          <li><strong>Tỷ lệ COD/Tổng doanh thu</strong>: Quản lý rủi ro thu hồi công nợ</li>
+          <li><strong>Tỷ lệ tăng trưởng MoM (Month-over-Month)</strong>: Theo dõi xu hướng ngắn hạn</li>
+          <li><strong>Doanh thu theo hành trình (route)</strong>: Tối ưu tuyến đường</li>
+        </ul>
+      </div>
+      <div class="insight-box mb-3">
+        <div class="font-bold text-sm mb-1">🎯 Dự báo & Mục tiêu Q2/2026</div>
+        <ul class="text-sm" style="list-style:disc;padding-left:16px;">
+          <li>Nếu duy trì đà tăng T3/2026, Q2/2026 có thể đạt <strong>10–12 Tỷ LAK</strong></li>
+          <li>Mục tiêu sản lượng: duy trì >2,000 bill/ngày trong Q2</li>
+          <li>Tập trung phát triển OUD branch (tăng nhanh trong T3) để giảm phụ thuộc VIC</li>
+          <li>Kiểm soát tỷ lệ discount dưới 5% để bảo vệ biên lợi nhuận</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- COD Analysis -->
+  <div class="card p-5 mb-5">
+    <div class="section-title">Phân tích COD (Cash on Delivery) — Quản lý Rủi ro Thu hồi</div>
+    <div class="grid grid-cols-3 gap-4">
+      <div style="text-align:center; padding:16px;">
+        <div class="text-xs text-gray-500 font-semibold uppercase mb-1">COD Q4/2025</div>
+        <div class="kpi-value kpi-orange">80.5 Tỷ</div>
+        <div class="text-xs text-gray-400">LAK | Chủ yếu T11/2025</div>
+        <div class="text-xs mt-1 text-red-500">Gấp 40.9x doanh thu Q4 — cần kiểm tra</div>
+      </div>
+      <div style="text-align:center; padding:16px;">
+        <div class="text-xs text-gray-500 font-semibold uppercase mb-1">COD Q1/2026</div>
+        <div class="kpi-value kpi-blue">23.3 Tỷ</div>
+        <div class="text-xs text-gray-400">LAK | 1,783M + 2,978M + 18,523M</div>
+        <div class="text-xs mt-1 text-blue-600">T3/2026 tăng đột biến — cần giám sát</div>
+      </div>
+      <div class="insight-box" style="flex:1;">
+        <div class="font-bold text-sm mb-2">⚡ Lưu ý COD</div>
+        <div class="text-sm">COD Q4 (80.5 Tỷ) cao bất thường so với doanh thu (1.97 Tỷ). Có thể do T11/2025 có lô hàng giá trị cao hoặc lỗi dữ liệu. Khuyến nghị kiểm tra và đối chiếu với dữ liệu thanh toán thực tế.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="card p-4 text-center" style="background:#f8fafc;">
+    <div class="text-sm text-gray-500">📊 Dashboard phân tích tự động từ dữ liệu Received Orders Report | Q4/2025 – Q1/2026</div>
+    <div class="text-xs text-gray-400 mt-1">Đơn vị: LAK (Kip Lào) | Tổng dữ liệu: 253,083 bills | Phân tích: 02/04/2026</div>
+  </div>
+
+<script>
+const COLORS = {
+  q4: '#1a56db',
+  q1: '#10b981',
+  months: ['#94a3b8','#1a56db','#3b82f6','#10b981','#34d399','#6ee7b7'],
+  gradient: ['#1a56db','#2563eb','#3b82f6','#10b981','#34d399','#6ee7b7'],
+  warn: '#f59e0b',
+  red: '#ef4444',
+};
+
+const months = ['T10/2025','T11/2025','T12/2025','T1/2026','T2/2026','T3/2026'];
+const revenues = [16484498, 1417446533, 536701083, 1395649000, 1867821000, 3248215503];
+const bills = [1812, 80252, 16878, 35351, 46597, 72193];
+const avgBill = [9097, 17662, 31799, 39480, 40085, 44993];
+const weights = [2.24, 1.66, 5.83, 9.22, 11.27, 12.44];
+const baseFees = [31809000, 1109192000, 568864000, 1460402000, 1959717000, 3351330000];
+const vasFees = [824995, 401810600, 712752, 7256000, 1288000, 41271503];
+const discounts = [16261498, 160804000, 33764000, 70702000, 93194000, 144386000];
+const discountRate = [33.7, 12.6, 5.6, 4.6, 4.5, 4.1];
+
+const bgColors = ['#94a3b8','#1a56db','#3b82f6','#10b981','#34d399','#6ee7b7'];
+
+const opts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
+const optsLegend = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'bottom', labels: { font: { size: 11 } } } } };
+
+// Chart 1: Revenue by Month
+new Chart(document.getElementById('chartMonthRev'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [{
+      label: 'Doanh thu (LAK)',
+      data: revenues,
+      backgroundColor: bgColors,
+      borderRadius: 6,
+    }]
+  },
+  options: { ...opts, plugins: { ...opts.plugins, tooltip: { callbacks: { label: ctx => `${(ctx.raw/1e9).toFixed(3)} Tỷ LAK` } } },
+    scales: { y: { ticks: { callback: v => (v/1e9).toFixed(1)+'B' } } }
+  }
+});
+
+// Chart 2: Bills by Month
+new Chart(document.getElementById('chartMonthBill'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [{
+      label: 'Số Bill',
+      data: bills,
+      backgroundColor: bgColors,
+      borderRadius: 6,
+    }]
+  },
+  options: { ...opts, plugins: { ...opts.plugins, tooltip: { callbacks: { label: ctx => `${ctx.raw.toLocaleString()} bills` } } },
+    scales: { y: { ticks: { callback: v => (v/1000).toFixed(0)+'K' } } }
+  }
+});
+
+// Chart 3: Avg Bill Revenue
+new Chart(document.getElementById('chartAvgBill'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [{
+      label: 'DT TB/Bill (LAK)',
+      data: avgBill,
+      borderColor: '#1a56db',
+      backgroundColor: 'rgba(26,86,219,0.1)',
+      fill: true,
+      tension: 0.4,
+      pointRadius: 5,
+      pointBackgroundColor: bgColors,
+    }]
+  },
+  options: { ...opts, plugins: { ...opts.plugins, tooltip: { callbacks: { label: ctx => `${ctx.raw.toLocaleString()} LAK` } } } }
+});
+
+// Chart 4: Quarter Bill Comparison Doughnut
+new Chart(document.getElementById('chartQuarterBill'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Q4/2025 (98,942)', 'Q1/2026 (154,141)'],
+    datasets: [{
+      data: [98942, 154141],
+      backgroundColor: ['#1a56db','#10b981'],
+      borderWidth: 3,
+      borderColor: 'white',
+    }]
+  },
+  options: { ...optsLegend,
+    plugins: { ...optsLegend.plugins, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${ctx.raw.toLocaleString()} bills` } } }
+  }
+});
+
+// Chart 5: Payment Terms
+new Chart(document.getElementById('chartPayment'), {
+  type: 'bar',
+  data: {
+    labels: ['T10/2025','T11/2025','T12/2025','T1/2026','T2/2026','T3/2026'],
+    datasets: [
+      { label: 'Người gửi', data: [1606,80214,9961,14787,16444,16607], backgroundColor: '#1a56db', borderRadius: 4 },
+      { label: 'Người nhận', data: [11,16,6849,20446,29973,55327], backgroundColor: '#10b981', borderRadius: 4 },
+      { label: 'Trả sau', data: [195,22,68,118,180,259], backgroundColor: '#f59e0b', borderRadius: 4 },
+    ]
+  },
+  options: { ...optsLegend, scales: { x: { stacked: true }, y: { stacked: true } } }
+});
+
+// Chart 6: Fee Breakdown
+new Chart(document.getElementById('chartFeeBreakdown'), {
+  type: 'bar',
+  data: {
+    labels: ['Q4/2025','Q1/2026'],
+    datasets: [
+      { label: 'Base Fee', data: [1709865000, 6771449000], backgroundColor: '#1a56db', borderRadius: 4 },
+      { label: 'VAS Fee', data: [403347347, 49815503], backgroundColor: '#16bdca', borderRadius: 4 },
+      { label: 'Discount', data: [-210829498, -308282000], backgroundColor: '#ef4444', borderRadius: 4 },
+    ]
+  },
+  options: { ...optsLegend,
+    plugins: { ...optsLegend.plugins },
+    scales: { y: { ticks: { callback: v => (v/1e9).toFixed(1)+'B' } } }
+  }
+});
+
+// Chart 7: Weight per Bill
+new Chart(document.getElementById('chartWeight'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [{
+      label: 'KG TB/Bill',
+      data: weights,
+      borderColor: '#d97706',
+      backgroundColor: 'rgba(217,119,6,0.1)',
+      fill: true,
+      tension: 0.4,
+      pointRadius: 5,
+      pointBackgroundColor: bgColors,
+    }]
+  },
+  options: { ...opts, plugins: { ...opts.plugins, tooltip: { callbacks: { label: ctx => `${ctx.raw.toFixed(2)} kg/bill` } } } }
+});
+
+// Chart 8: Top Origins Q1/2026
+new Chart(document.getElementById('chartOrigin'), {
+  type: 'bar',
+  data: {
+    labels: ['VIC','OUD','SAV','CHA','LUP','KHA','VIP','XAY','LUN','BOK'],
+    datasets: [{
+      label: 'Số bill',
+      data: [71880,18591,7467,5847,5798,4587,4274,4391,4316,3705],
+      backgroundColor: '#1a56db',
+      borderRadius: 4,
+    }]
+  },
+  options: { ...opts, indexAxis: 'y', plugins: { ...opts.plugins, tooltip: { callbacks: { label: ctx => `${ctx.raw.toLocaleString()} bills` } } } }
+});
+
+// Chart 9: Cargo Q4
+new Chart(document.getElementById('chartCargoQ4'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Hàng hóa (94.0%)', 'Thư (6.0%)'],
+    datasets: [{ data: [92966, 5976], backgroundColor: ['#1a56db','#f59e0b'], borderWidth: 3, borderColor: 'white' }]
+  },
+  options: optsLegend
+});
+
+// Chart 10: Cargo Q1
+new Chart(document.getElementById('chartCargoQ1'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Hàng hóa (98.0%)', 'Thư (2.0%)'],
+    datasets: [{ data: [151054, 3087], backgroundColor: ['#10b981','#f59e0b'], borderWidth: 3, borderColor: 'white' }]
+  },
+  options: optsLegend
+});
+
+// Chart 11: Discount Rate
+new Chart(document.getElementById('chartDiscount'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [{
+      label: 'Tỷ lệ Chiết khấu (%)',
+      data: discountRate,
+      borderColor: '#ef4444',
+      backgroundColor: 'rgba(239,68,68,0.1)',
+      fill: true,
+      tension: 0.4,
+      pointRadius: 5,
+      pointBackgroundColor: bgColors,
+    }]
+  },
+  options: { ...opts,
+    plugins: { ...opts.plugins, tooltip: { callbacks: { label: ctx => `${ctx.raw.toFixed(1)}%` } } },
+    scales: { y: { min: 0, ticks: { callback: v => v + '%' } } }
+  }
+});
+
+// Chart 12: VAS Fee
+new Chart(document.getElementById('chartVas'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [{
+      label: 'VAS Fee (LAK)',
+      data: vasFees,
+      backgroundColor: bgColors,
+      borderRadius: 6,
+    }]
+  },
+  options: { ...opts,
+    plugins: { ...opts.plugins, tooltip: { callbacks: { label: ctx => `${(ctx.raw/1e6).toFixed(1)}M LAK` } } },
+    scales: { y: { ticks: { callback: v => (v/1e6).toFixed(0)+'M' } } }
+  }
+});
+</script>
+</body>
+</html>
