@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Doanh Thu – Tháng 3/2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f5f0ea; color: #2d2d2d; padding: 24px; }
+  h1 { font-size: 1.5rem; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+  .subtitle { font-size: 0.85rem; color: #888; margin-bottom: 20px; }
+
+  /* KPI Cards */
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+  .kpi-card { background: #fff; border-radius: 12px; padding: 18px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+  .kpi-label { font-size: 0.78rem; color: #888; margin-bottom: 4px; }
+  .kpi-value { font-size: 1.6rem; font-weight: 700; color: #1a1a1a; }
+  .kpi-value.blue { color: #2563eb; }
+
+  /* Error cards */
+  .error-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+  .error-card { background: #fff5f5; border-radius: 12px; padding: 16px 20px; border-left: 4px solid #f87171; }
+  .error-card.warning { background: #fffbf0; border-left-color: #fbbf24; }
+  .error-label { font-size: 0.75rem; color: #b91c1c; font-weight: 600; margin-bottom: 4px; }
+  .error-card.warning .error-label { color: #b45309; }
+  .error-value { font-size: 1.5rem; font-weight: 700; color: #1a1a1a; }
+  .error-desc { font-size: 0.75rem; color: #666; margin-top: 2px; }
+
+  /* Section */
+  .section { background: #fff; border-radius: 14px; padding: 20px 22px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+  .section-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 14px; color: #1a1a1a; }
+
+  /* Tab buttons */
+  .tab-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .tab-btn { padding: 6px 16px; border-radius: 20px; border: 1.5px solid #d1c8bb; background: #f5f0ea; font-size: 0.8rem; cursor: pointer; font-weight: 500; color: #555; transition: all .15s; }
+  .tab-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+
+  /* Bar chart table */
+  .seg-table { width: 100%; }
+  .seg-row { display: grid; grid-template-columns: 80px 1fr 60px 120px; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid #f0ebe3; }
+  .seg-row:last-child { border-bottom: none; }
+  .seg-label { font-size: 0.8rem; font-weight: 600; color: #333; }
+  .seg-bar-wrap { background: #f0ebe3; border-radius: 4px; height: 12px; overflow: hidden; }
+  .seg-bar { height: 100%; border-radius: 4px; }
+  .seg-pct { font-size: 0.8rem; color: #555; text-align: right; }
+  .seg-rev { font-size: 0.78rem; color: #333; font-weight: 600; text-align: right; }
+
+  /* Two columns */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+
+  /* Cap 80kg */
+  .cap-section { background: #fff; border-radius: 14px; padding: 20px 22px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+  .cap-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .cap-dot { width: 14px; height: 14px; border-radius: 50%; background: #fbbf24; flex-shrink: 0; }
+  .cap-title { font-size: 0.95rem; font-weight: 700; color: #1a1a1a; }
+  .cap-sub { font-size: 0.78rem; color: #888; margin-bottom: 14px; }
+  .cap-body { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  .cap-stats { font-size: 0.82rem; color: #333; line-height: 1.8; }
+  .cap-stats strong { color: #1a1a1a; }
+  .highlight-box { background: #fffbf0; border: 1.5px solid #fbbf24; border-radius: 10px; padding: 12px 14px; margin-top: 12px; font-size: 0.82rem; color: #78350f; line-height: 1.6; }
+  .highlight-box strong { font-size: 1.05rem; color: #b45309; }
+
+  /* Top branch table */
+  .branch-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  .branch-table th { background: #2563eb; color: #fff; padding: 8px 10px; text-align: left; }
+  .branch-table td { padding: 7px 10px; border-bottom: 1px solid #f0ebe3; }
+  .branch-table tr:hover td { background: #f5f0ea; }
+  .bar-inline-wrap { background: #e8f0fe; border-radius: 3px; height: 10px; overflow: hidden; display: inline-block; width: 100px; vertical-align: middle; margin-left: 8px; }
+  .bar-inline { height: 100%; background: #2563eb; border-radius: 3px; }
+
+  canvas { max-height: 280px; }
+  @media (max-width: 768px) {
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .two-col { grid-template-columns: 1fr; }
+    .cap-body { grid-template-columns: 1fr; }
+    .error-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<h1>📦 Dashboard Doanh Thu Nhận Đơn – Tháng 3/2026</h1>
+<p class="subtitle">Nguồn: Detail_revenue_received_tháng_3_2026.xlsx &nbsp;|&nbsp; 01/03/2026 – 31/03/2026</p>
+
+<!-- KPI Cards -->
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="kpi-label">Tổng đơn hàng</div>
+    <div class="kpi-value blue">72,210</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Tổng doanh thu</div>
+    <div class="kpi-value">3,248.9 triệu</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Trọng lượng TB</div>
+    <div class="kpi-value">12.4 kg</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Doanh thu TB/đơn</div>
+    <div class="kpi-value">44,993 LAK</div>
+  </div>
+</div>
+
+<!-- Error Cards -->
+<div class="error-row">
+  <div class="error-card">
+    <div class="error-label">🔴 Lỗi nghiêm trọng #1</div>
+    <div class="error-value">19,171</div>
+    <div class="error-desc">đơn nhập mặc định 1 kg (= 26.5% tổng đơn)</div>
+  </div>
+  <div class="error-card">
+    <div class="error-label">🔴 Lỗi nghiêm trọng #2</div>
+    <div class="error-value">1,162</div>
+    <div class="error-desc">đơn bị chặn ở trần 80 kg</div>
+  </div>
+  <div class="error-card warning">
+    <div class="error-label">⚠️ Cảnh báo #3</div>
+    <div class="error-value">88.7%</div>
+    <div class="error-desc">đơn có trọng lượng tròn số (nghi vấn nhập tay)</div>
+  </div>
+</div>
+
+<!-- Weight Segment + Bar Chart -->
+<div class="two-col">
+  <!-- Table -->
+  <div class="section">
+    <div class="section-title">Phân tích theo phân khúc trọng lượng</div>
+    <div class="tab-row">
+      <button class="tab-btn active" id="btn-order" onclick="switchTab('order')">Thị phần đơn hàng</button>
+      <button class="tab-btn" id="btn-rev" onclick="switchTab('rev')">Thị phần doanh thu</button>
+    </div>
+    <div class="seg-table" id="seg-table"></div>
+  </div>
+
+  <!-- Bar Chart -->
+  <div class="section">
+    <div class="section-title">Biểu đồ phân bổ đơn hàng theo trọng lượng</div>
+    <canvas id="segChart"></canvas>
+  </div>
+</div>
+
+<!-- 80kg Cap Analysis -->
+<div class="cap-section">
+  <div class="cap-header">
+    <div class="cap-dot"></div>
+    <div class="cap-title">Trần hệ thống 80 kg — bỏ sót doanh thu thực</div>
+  </div>
+  <div class="cap-sub">1,162 đơn kẹt ở đúng 80 kg, trong khi chỉ có 553 đơn từ 60–79 kg</div>
+  <div class="cap-body">
+    <div>
+      <div class="section-title" style="font-size:0.85rem;margin-bottom:10px;">Phân bố trọng lượng 60–80 kg</div>
+      <canvas id="capChart"></canvas>
+    </div>
+    <div>
+      <div class="cap-stats">
+        <div><strong>92.8%</strong> đơn 80 kg đến từ chi nhánh <strong>VIC</strong> (1,077/1,162)</div>
+        <div><strong>92.9%</strong> đơn 80 kg có kích thước &gt; 300 cm — thực tế nặng hơn nhiều</div>
+        <div><strong>Phí trung bình bị tính: 250,322 LAK</strong></div>
+        <div class="highlight-box">
+          Nếu trọng lượng thực trung bình là 100 kg, doanh thu bị thiếu ước tính<br>
+          <strong>~50–80 triệu LAK/tháng</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Donut + Top Branch -->
+<div class="two-col">
+  <div class="section">
+    <div class="section-title">⚠️ 88.7% đơn hàng có trọng lượng tròn số</div>
+    <p style="font-size:0.78rem;color:#888;margin-bottom:14px;">Tỷ lệ bình thường với cân điện tử thực tế chỉ khoảng 20–30%</p>
+    <canvas id="donutChart"></canvas>
+  </div>
+  <div class="section">
+    <div class="section-title">Top 10 chi nhánh theo doanh thu</div>
+    <table class="branch-table">
+      <thead><tr><th>#</th><th>Chi nhánh</th><th>Doanh thu (triệu LAK)</th><th>Tỷ trọng</th></tr></thead>
+      <tbody id="branch-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────
+const segments = [
+  {name:'<1kg',   orders:4277,  pct_order:5.9,  revenue:32772000,   pct_rev:1.0},
+  {name:'1-2kg',  orders:20037, pct_order:27.7, revenue:177943753,  pct_rev:5.5},
+  {name:'2-3kg',  orders:2920,  pct_order:4.0,  revenue:43418000,   pct_rev:1.3},
+  {name:'3-5kg',  orders:3786,  pct_order:5.2,  revenue:82708000,   pct_rev:2.5},
+  {name:'5-10kg', orders:7837,  pct_order:10.9, revenue:257638500,  pct_rev:7.9},
+  {name:'10-20kg',orders:17347, pct_order:24.0, revenue:898118250,  pct_rev:27.6},
+  {name:'20-30kg',orders:8099,  pct_order:11.2, revenue:611995000,  pct_rev:18.8},
+  {name:'30-50kg',orders:5103,  pct_order:7.1,  revenue:583642000,  pct_rev:18.0},
+  {name:'>50kg',  orders:2804,  pct_order:3.9,  revenue:560675000,  pct_rev:17.3},
+];
+
+const COLORS = ['#1e40af','#2563eb','#60a5fa','#93c5fd','#34d399','#059669','#047857','#92400e','#78350f'];
+
+const topBranches = [
+  ['VIC',1968473250],['OUD',278838000],['SAV',148019000],['CHA',108954000],['KHA',90700000],
+  ['LUP',80930000],['XAY',70552000],['VIP',69084000],['PHO',63286000],['BOK',61174000]
+];
+
+const totalRev = 3248910503;
+
+const dist6080 = [
+  [60,88],[61,17],[62,67],[63,30],[64,15],[65,47],[66,20],[67,17],[68,30],[69,34],
+  [70,58],[71,8],[72,16],[73,29],[74,9],[75,28],[76,8],[77,19],[78,11],[79,12],[80,1162]
+];
+
+// ── SEG TABLE ─────────────────────────────────────────────────────
+let currentTab = 'order';
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('btn-order').classList.toggle('active', tab==='order');
+  document.getElementById('btn-rev').classList.toggle('active', tab==='rev');
+  renderSegTable();
+  updateSegChart();
+}
+
+function renderSegTable() {
+  const max = currentTab==='order'
+    ? Math.max(...segments.map(s=>s.pct_order))
+    : Math.max(...segments.map(s=>s.pct_rev));
+
+  let html = '';
+  segments.forEach((s,i) => {
+    const pct = currentTab==='order' ? s.pct_order : s.pct_rev;
+    const barW = (pct/max*100).toFixed(1);
+    const rev = (s.revenue/1e6).toFixed(3).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+    html += `<div class="seg-row">
+      <div class="seg-label">${s.name}</div>
+      <div class="seg-bar-wrap"><div class="seg-bar" style="width:${barW}%;background:${COLORS[i]};"></div></div>
+      <div class="seg-pct">${pct}%</div>
+      <div class="seg-rev">${(s.revenue/1000).toLocaleString('vi-VN',{maximumFractionDigits:0})} K</div>
+    </div>`;
+  });
+  document.getElementById('seg-table').innerHTML = html;
+}
+
+// ── SEG CHART ─────────────────────────────────────────────────────
+let segChart;
+function buildSegChart() {
+  segChart = new Chart(document.getElementById('segChart'), {
+    type: 'bar',
+    data: {
+      labels: segments.map(s=>s.name),
+      datasets: [{
+        label: 'Thị phần đơn hàng (%)',
+        data: segments.map(s=>s.pct_order),
+        backgroundColor: COLORS,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend:{display:false}, tooltip:{callbacks:{label:c=>`${c.raw}%`}} },
+      scales: { y:{ticks:{callback:v=>v+'%'}, grid:{color:'#f0ebe3'}}, x:{grid:{display:false}} }
+    }
+  });
+}
+
+function updateSegChart() {
+  if (!segChart) return;
+  const data = currentTab==='order' ? segments.map(s=>s.pct_order) : segments.map(s=>s.pct_rev);
+  const label = currentTab==='order' ? 'Thị phần đơn hàng (%)' : 'Thị phần doanh thu (%)';
+  segChart.data.datasets[0].data = data;
+  segChart.data.datasets[0].label = label;
+  segChart.update();
+}
+
+// ── CAP CHART ─────────────────────────────────────────────────────
+function buildCapChart() {
+  const labels = dist6080.map(d=>d[0]);
+  const vals = dist6080.map(d=>d[1]);
+  const bgColors = labels.map(l => l===80 ? '#ef4444' : '#93c5fd');
+  new Chart(document.getElementById('capChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ data: vals, backgroundColor: bgColors, borderRadius: 3 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend:{display:false} },
+      scales: { y:{grid:{color:'#f0ebe3'}}, x:{grid:{display:false}, ticks:{font:{size:10}}} }
+    }
+  });
+}
+
+// ── DONUT ──────────────────────────────────────────────────────────
+function buildDonut() {
+  new Chart(document.getElementById('donutChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Tròn số (nghi vấn nhập tay)', 'Có thập phân (có thể cân thực)'],
+      datasets: [{ data: [88.7, 11.3], backgroundColor: ['#ef4444','#34d399'], borderWidth: 2 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      cutout: '60%',
+      plugins: {
+        legend: { position:'bottom', labels:{font:{size:11}} },
+        tooltip: { callbacks: { label: c => `${c.label}: ${c.raw}%` } }
+      }
+    }
+  });
+}
+
+// ── BRANCH TABLE ───────────────────────────────────────────────────
+function buildBranchTable() {
+  const maxRev = topBranches[0][1];
+  let html = '';
+  topBranches.forEach(([branch, rev], i) => {
+    const pct = (rev/totalRev*100).toFixed(1);
+    const barW = Math.round(rev/maxRev*100);
+    const revM = (rev/1e6).toFixed(1);
+    html += `<tr>
+      <td style="color:#888;">${i+1}</td>
+      <td><strong>${branch}</strong></td>
+      <td>${revM} tr
+        <span class="bar-inline-wrap"><span class="bar-inline" style="width:${barW}%"></span></span>
+      </td>
+      <td>${pct}%</td>
+    </tr>`;
+  });
+  document.getElementById('branch-tbody').innerHTML = html;
+}
+
+// ── INIT ───────────────────────────────────────────────────────────
+renderSegTable();
+buildSegChart();
+buildCapChart();
+buildDonut();
+buildBranchTable();
+</script>
+</body>
+</html>
